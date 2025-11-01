@@ -95,6 +95,7 @@ declare module 'vue' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElWatermark: typeof import('element-plus/es')['ElWatermark']
     HorizontalScrollButtons: typeof import('./../components/custom/HorizontalScrollButtons.vue')['default']
