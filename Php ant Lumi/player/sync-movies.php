@@ -183,9 +183,9 @@ foreach ($movieIds as $id) {
         'description' => $description ?: '',
         'streamUrl' => $streamUrl ?: '',
         'trailerUrl' => $trailerUrl ?: '',
-        'logo' => $baseUrl . "/uploads/films/{$id}/logo.jpg",
-        'poster' => $baseUrl . "/uploads/films/{$id}/poster.jpg",
-        'banner' => $baseUrl . "/uploads/films/{$id}/banner.jpg"
+        'logo' => $baseUrl . "/img/logos/{$id}.jpg",
+        'poster' => $baseUrl . "/img/posters/{$id}.jpg",
+        'banner' => $baseUrl . "/img/banners/{$id}.jpg"
     ];
     
     echo "✅ $title\n";

@@ -1,21 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANT-TV (YouTube Style)</title>
-    <!-- Стили -->
     <link rel="stylesheet" href="assets/css/youtube-theme.css">
     <link rel="stylesheet" href="assets/css/player-modern.css">
-
-    <!-- Иконки (Material Icons) -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
-
-    <!-- HEADER -->
     <header class="yt-header">
         <div class="yt-logo-section">
             <div class="yt-burger"><span class="material-icons">menu</span></div>
@@ -24,8 +19,6 @@
                 <span>ANT-TV</span>
             </div>
         </div>
-
-        <!-- URL INPUT (Вместо поиска) -->
         <div class="yt-search-section">
             <div class="yt-search-box">
                 <input type="text" id="stream-url" class="yt-search-input"
@@ -35,7 +28,6 @@
                 </button>
             </div>
         </div>
-
         <div class="yt-icons-section">
             <button class="yt-icon-btn"><span class="material-icons">video_call</span></button>
             <button class="yt-icon-btn"><span class="material-icons">notifications</span></button>
@@ -43,17 +35,12 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <div class="yt-container">
-
-        <!-- LEFT COLUMN: PLAYER -->
         <div class="yt-primary">
             <div class="yt-player-wrapper">
-                <!-- НАШ ПЛЕЕР -->
                 <div class="video-container" id="video-container">
                     <video id="main-video"></video>
                     <div class="player-overlay"></div>
-
                     <div class="player-controls">
                         <div class="progress-container" id="progress-container">
                             <div class="progress-bg">
@@ -72,6 +59,15 @@
                                 <button class="btn-icon" onclick="player.seek(player.video.currentTime + 10)">
                                     <span class="material-icons" style="font-size:24px; color:white;">forward_10</span>
                                 </button>
+                                <div class="volume-container"
+                                    style="display:flex; align-items:center; margin-left:8px;">
+                                    <button class="btn-icon" id="mute-btn" onclick="toggleMute()">
+                                        <span class="material-icons"
+                                            style="font-size:24px; color:white;">volume_up</span>
+                                    </button>
+                                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1"
+                                        style="width:70px; height:4px; margin-left:8px; cursor:pointer; accent-color:white;">
+                                </div>
                                 <div class="time-display">
                                     <span class="time-current">0:00</span> / <span class="time-duration">0:00</span>
                                 </div>
@@ -86,8 +82,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Меню плеера (скрыты по умолчанию) -->
                     <div class="player-menu" id="menu-quality" data-menu="quality">
                         <div class="menu-content" id="quality-list"></div>
                     </div>
@@ -96,10 +90,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- INFO UNDER VIDEO -->
             <div class="yt-video-title" id="video-title">Выберите видео справа...</div>
-
             <div class="yt-video-actions">
                 <div class="yt-channel-info">
                     <div class="yt-channel-avatar"></div>
@@ -115,22 +106,16 @@
                     <button class="yt-btn-gray"><span class="material-icons">download</span> Скачать</button>
                 </div>
             </div>
-
             <div class="yt-description-box" id="video-desc">
                 <div class="yt-desc-meta">254 тыс. просмотров • 2 часа назад</div>
                 <div id="desc-text">Описание видео появится здесь...</div>
             </div>
         </div>
-
-        <!-- RIGHT COLUMN: SIDEBAR -->
         <div class="yt-secondary" id="sidebar-list">
-            <!-- Сюда загрузятся видео -->
             <div style="text-align:center; padding:20px; color:#606060;">Загрузка рекомендаций...</div>
         </div>
-
     </div>
 
-    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="assets/js/player-core.js"></script>
     <script src="modules/audio/player-audio.js"></script>
@@ -146,64 +131,47 @@
             await loadMovies();
         };
 
-        // 1. Загрузка фильмов из content-api.php
         async function loadMovies() {
             try {
-                const response = await fetch('content-api.php?action=all');
+                const response = await fetch('live-api.php');
                 const data = await response.json();
-
                 if (Array.isArray(data) && data.length > 0) {
                     movies = data
-                        .filter(m => m.streamUrl && m.streamUrl.trim() !== '')
+                        .filter(m => m.streamUrl && m.streamUrl.trim().length > 5)
                         .map(m => ({
-                            title: m.title,
-                            url: m.streamUrl,
-                            poster: m.poster || m.logo,
-                            logo: m.logo,
-                            banner: m.banner || m.poster,
-                            channel: 'ANT-TV',
+                            title: m.title, url: m.streamUrl, poster: m.poster || m.logo,
+                            logo: m.logo, banner: m.banner || m.poster, channel: 'ANT-TV',
                             views: m.rating ? `⭐ ${m.rating}` : 'N/A',
-                            time: m.year ? `${m.year}` : '',
-                            duration: m.duration ? `${m.duration} мин` : '',
-                            desc: m.description || 'Нет описания',
-                            age: m.age || '',
-                            country: m.country || ''
+                            time: m.year ? `${m.year}` : '', duration: m.duration ? `${m.duration} мин` : '',
+                            desc: m.description || 'Нет описания', age: m.age || '', country: m.country || ''
                         }));
-
                     console.log(`✅ Загружено ${movies.length} фильмов`);
                 } else {
                     throw new Error('Список пуст');
                 }
             } catch (e) {
-                console.error('❌ Ошибка загрузки фильмов:', e);
-                movies = []; // Пустой массив при ошибке
+                console.error('❌ Ошибка загрузки:', e);
+                movies = [];
             }
-
             renderSidebar();
-
-            if (movies.length > 0) {
-                loadVideo(0);
-            } else {
-                console.warn('⚠ Нет фильмов для отображения');
-            }
+            if (movies.length > 0) loadVideo(0);
+            else document.getElementById('sidebar-list').innerHTML = '<div style="padding:20px;text-align:center;">Нет фильмов</div>';
         }
 
         function renderSidebar() {
             const list = document.getElementById('sidebar-list');
             list.innerHTML = '';
-
             if (movies.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding:20px; color:#ff0000;">Фильмы не найдены</div>';
                 return;
             }
-
             movies.forEach((movie, index) => {
                 const card = document.createElement('div');
                 card.className = 'yt-video-card';
                 card.onclick = () => loadVideo(index);
-
                 card.innerHTML = `
                     <div class="yt-card-thumb" style="background-image: url('${movie.poster}')">
+                         ${movie.logo ? `<img src="${movie.logo}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:120px;max-height:80px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));z-index:2;" onerror="this.style.display='none'" alt="">` : ''}
                         <div class="yt-duration">${movie.duration}</div>
                     </div>
                     <div class="yt-card-info">
@@ -222,19 +190,24 @@
                 console.error('Невалидный фильм:', movie);
                 return;
             }
-
             document.getElementById('video-title').textContent = movie.title;
             document.querySelector('.yt-channel-name').textContent = movie.channel;
             document.getElementById('desc-text').textContent = movie.desc;
             document.querySelector('.yt-desc-meta').textContent = `${movie.views} просмотров • ${movie.time}`;
-
-            player.loadSource(movie.url, 'hls');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (player) {
+                player.loadSource(movie.url, 'hls');
+                // Автоматическое воспроизведение
+                player.video.addEventListener('loadeddata', function autoplay() {
+                    player.play().catch(err => console.log('Автоплей заблокирован:', err));
+                    player.video.removeEventListener('loadeddata', autoplay);
+                }, { once: true });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         function loadCustomStream() {
             const url = document.getElementById('stream-url').value;
-            if (url) {
+            if (url && player) {
                 player.loadSource(url, 'hls');
                 document.getElementById('video-title').textContent = "Пользовательский поток";
                 document.getElementById('desc-text').textContent = url;
@@ -242,19 +215,19 @@
         }
 
         function initPlayer() {
-            player = new ProVideoPlayer({
-                videoElement: 'main-video',
-                container: 'video-container',
-                autoplay: false
-            });
-            player.audio = new PlayerAudio(player);
-            player.subtitles = new PlayerSubtitles(player);
-
+            if (typeof ProVideoPlayer === 'undefined') {
+                console.error('ProVideoPlayer not loaded');
+                return;
+            }
+            player = new ProVideoPlayer({ videoElement: 'main-video', container: 'video-container', autoplay: false });
+            if (typeof PlayerAudio !== 'undefined') player.audio = new PlayerAudio(player);
+            if (typeof PlayerSubtitles !== 'undefined') player.subtitles = new PlayerSubtitles(player);
             player.on('timeupdate', updateProgress);
             player.on('play', () => updatePlayBtn(true));
             player.on('pause', () => updatePlayBtn(false));
             player.on('manifestparsed', () => updateQualityMenu());
             player.on('audiotracksupdate', updateAudioMenu);
+            player.video.addEventListener('volumechange', updateVolumeUI);
         }
 
         function setupUI() {
@@ -266,17 +239,43 @@
                 };
             });
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.player-menu') && !e.target.closest('.btn-text')) {
-                    closeAllMenus();
-                }
+                if (!e.target.closest('.player-menu') && !e.target.closest('.btn-text')) closeAllMenus();
             });
-
             const pContainer = document.getElementById('progress-container');
-            pContainer.onclick = (e) => {
-                const rect = pContainer.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                player.seek(pos * player.video.duration);
-            };
+            if (pContainer) {
+                pContainer.onclick = (e) => {
+                    const rect = pContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    if (player && player.video.duration) player.seek(pos * player.video.duration);
+                };
+            }
+            const vSlider = document.getElementById('volume-slider');
+            if (vSlider) {
+                vSlider.oninput = (e) => {
+                    if (player && player.video) {
+                        player.video.volume = parseFloat(e.target.value);
+                        player.video.muted = false;
+                    }
+                };
+            }
+        }
+
+        function toggleMute() {
+            if (!player || !player.video) return;
+            player.video.muted = !player.video.muted;
+        }
+
+        function updateVolumeUI() {
+            if (!player || !player.video) return;
+            const vSlider = document.getElementById('volume-slider');
+            const muteBtn = document.getElementById('mute-btn');
+            if (vSlider) vSlider.value = player.video.muted ? 0 : player.video.volume;
+            if (muteBtn) {
+                let icon = 'volume_up';
+                if (player.video.muted || player.video.volume === 0) icon = 'volume_off';
+                else if (player.video.volume < 0.5) icon = 'volume_down';
+                muteBtn.innerHTML = `<span class="material-icons" style="font-size:24px; color:white;">${icon}</span>`;
+            }
         }
 
         function toggleMenu(id) {
@@ -293,27 +292,33 @@
 
         function updatePlayBtn(isPlaying) {
             const btn = document.getElementById('play-btn');
-            btn.innerHTML = isPlaying ?
-                '<span class="material-icons" style="font-size:28px; color:black;">pause</span>' :
-                '<span class="material-icons" style="font-size:28px; color:black;">play_arrow</span>';
+            if (btn) {
+                btn.innerHTML = isPlaying ?
+                    '<span class="material-icons" style="font-size:28px; color:black;">pause</span>' :
+                    '<span class="material-icons" style="font-size:28px; color:black;">play_arrow</span>';
+            }
         }
 
         function togglePlay() {
-            player.video.paused ? player.play() : player.pause();
+            if (player && player.video) player.video.paused ? player.play() : player.pause();
         }
 
         function toggleFullscreen() {
             const c = document.getElementById('video-container');
-            document.fullscreenElement ? document.exitFullscreen() : c.requestFullscreen();
+            if (c) document.fullscreenElement ? document.exitFullscreen() : c.requestFullscreen();
         }
 
         function updateProgress() {
-            if (!player.video.duration) return;
+            if (!player || !player.video || !player.video.duration) return;
             const pct = (player.video.currentTime / player.video.duration) * 100;
-            document.querySelector('.progress-filled').style.width = pct + '%';
-            document.querySelector('.progress-handle').style.left = pct + '%';
-            document.querySelector('.time-current').textContent = formatTime(player.video.currentTime);
-            document.querySelector('.time-duration').textContent = formatTime(player.video.duration);
+            const filled = document.querySelector('.progress-filled');
+            const handle = document.querySelector('.progress-handle');
+            if (filled) filled.style.width = pct + '%';
+            if (handle) handle.style.left = pct + '%';
+            const curr = document.querySelector('.time-current');
+            const dur = document.querySelector('.time-duration');
+            if (curr) curr.textContent = formatTime(player.video.currentTime);
+            if (dur) dur.textContent = formatTime(player.video.duration);
         }
 
         function formatTime(s) {
@@ -324,7 +329,7 @@
 
         function updateQualityMenu() {
             const list = document.getElementById('quality-list');
-            if (!list) return;
+            if (!list || !player.hls) return;
             list.innerHTML = '';
             addMenuItem(list, 'Авто', true, () => { player.setAutoQuality(); });
             player.hls.levels.forEach((l, i) => {

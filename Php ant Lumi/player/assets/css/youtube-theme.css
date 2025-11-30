@@ -12,7 +12,8 @@ body {
     background-color: #f9f9f9;
     /* Светлый фон как на скрине */
     color: #0f0f0f;
-    overflow-x: hidden;
+    overflow: hidden;
+    /* Скрываем прокрутку страницы */
 }
 
 /* --- HEADER --- */
@@ -156,16 +157,32 @@ body {
     max-width: 1750px;
     margin-left: auto;
     margin-right: auto;
+    /* Фиксированная высота для лэйаута */
+    height: calc(100vh - 56px);
+    box-sizing: border-box;
 }
 
 /* LEFT COLUMN (PLAYER) */
 .yt-primary {
     flex: 1;
     min-width: 0;
-    /* Fix flex overflow */
+    /* Левая часть: скролл если нужно, но скрытый */
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    /* Firefox */
+    padding-bottom: 40px;
+}
+
+.yt-primary::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
 }
 
 .yt-player-wrapper {
+    position: relative;
+
+    z-index: 100;
     width: 100%;
     aspect-ratio: 16/9;
     background: black;
@@ -281,6 +298,18 @@ body {
 .yt-secondary {
     width: 400px;
     flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 40px;
+    padding-right: 0;
+    /* Убираем отступ справа */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Скрываем скроллбар для Webkit (Chrome, Safari, Edge) */
+.yt-secondary::-webkit-scrollbar {
+    display: none;
 }
 
 .yt-video-card {
@@ -338,11 +367,33 @@ body {
 /* АДАПТИВНОСТЬ */
 @media (max-width: 1000px) {
     .yt-container {
-        flex-direction: column;
+        margin-top: 56px;
+        display: flex;
+        padding: 24px;
+        gap: 24px;
+        max-width: 1750px;
+        margin-left: auto;
+        margin-right: auto;
+        /* Фиксированная высота для лэйаута */
+        height: calc(100vh - 56px);
+        box-sizing: border-box;
     }
 
     .yt-secondary {
-        width: 100%;
+        width: 400px;
+        flex-shrink: 0;
+        height: 100%;
+        overflow-y: auto;
+        padding-bottom: 40px;
+        padding-right: 0;
+        /* Убираем отступ справа */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    /* Скрываем скроллбар для Webkit (Chrome, Safari, Edge) */
+    .yt-secondary::-webkit-scrollbar {
+        display: none;
     }
 
     .yt-video-card {
